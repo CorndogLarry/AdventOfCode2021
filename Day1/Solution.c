@@ -32,9 +32,9 @@ int PartOne() {
 }
 
 //TODO giving different results with runs over 1000 loops.
-//The fgets loop is having issues reading I think.
+//The fgets loop is having issues reading I think.  Could be queue stuct
 //Also, results not being printed from main()
-int PartTwo() {
+int PartTwoQueue() {
 	int result = 0;
 	struct Queue* queue = createQueue(3);
 	FILE* fp;
@@ -69,6 +69,41 @@ int PartTwo() {
 			}
 	}
 	printf("Result = %d", result);
+	fclose(fp);
+	return result;
+}
+
+int PartTwo() {
+	int BLOCK_SIZE = 3;
+	int result = 0;
+	int* input_block = (int*)malloc(BLOCK_SIZE * sizeof(int));
+	int i = 0;
+	char buffer[MAX_LEN];
+	FILE* fp;
+	fp = fopen("Input.txt", "r");
+	if (fp == NULL) {
+		perror("Failed: ");
+		return 1;
+	}
+	
+	// change fp to stdin if using standard input
+	while (fgets(buffer, MAX_LEN, fp)) {
+		int number;
+		if (sscanf(buffer, "%d", &number) == 1) {
+			// check if block array full
+			if (i >= BLOCK_SIZE) {
+				if ((input_block[0] + input_block[1] + input_block[2]) < (input_block[1] + input_block[2] + number)) result++;
+				// ugly, but we gotta shift
+				input_block[0] = input_block[1];
+				input_block[1] = input_block[2];
+				input_block[2] = number;
+			}
+			else { //fill up the queue so we can start comparing
+				input_block[i] = number;
+				i++;
+			}
+		}
+	}
 	fclose(fp);
 	return result;
 }
